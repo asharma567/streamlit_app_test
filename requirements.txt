@@ -2,5 +2,4 @@ streamlit==1.12.2
 streamlit-aggrid==0.3.2
 shap==0.41.0
 pandas==1.4.3
-numba==0.51.0
 xgboost==1.6.1
