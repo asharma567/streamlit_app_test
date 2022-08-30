@@ -76,6 +76,7 @@ if selection:
         auth = selection["selected_rows"][0]['member']
     except:
         auth = df_leaderboard['member'].iloc[0]
+    
     st.write(auth)
     author_idx = author_idx_lookup.get(auth)
     # visualize the first prediction's explaination with default colors
