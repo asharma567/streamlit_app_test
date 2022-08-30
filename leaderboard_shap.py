@@ -5,7 +5,8 @@ from st_aggrid.shared import GridUpdateMode
 import shap
 import streamlit as st
 import streamlit.components.v1 as components
-import joblib
+import pickle
+
 import xgboost
 
 
@@ -53,11 +54,11 @@ def aggrid_interactive_table(df: pd.DataFrame):
 st.title("Boba Leaderboard")
 
 #load joblib
-df_M_character = joblib.load('df_M_character.joblib')
+df_M_character = pickle.load(open('df_M_character.pickle', 'rb'))
+explainer = pickle.load(open('explainer.pickle', 'rb'))
+shap_values = pickle.load(open('shap_values.pickle', 'rb'))
 df_M_character_scale = scale_and_standardize(df_M_character)
 author_idx_lookup = dict([(name, idx) for idx, name in enumerate(df_M_character.index)])
-explainer = joblib.load('explainer.joblib')
-shap_values = joblib.load('shap_values.joblib')
 
 X = pd.DataFrame(
     df_M_character_scale, 
