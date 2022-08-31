@@ -1,3 +1,5 @@
+#create the explainer and shap values 
+
 import pandas as pd
 import streamlit as st
 from st_aggrid import AgGrid, GridOptionsBuilder
@@ -6,8 +8,8 @@ import shap
 import streamlit as st
 import streamlit.components.v1 as components
 import pickle
-
 import xgboost
+import joblib
 
 
 
@@ -55,10 +57,24 @@ st.title("Boba Leaderboard")
 
 #load joblib
 df_M_character = pickle.load(open('df_M_character.pickle', 'rb'))
-explainer = pickle.load(open('explainer.pickle', 'rb'))
-shap_values = pickle.load(open('shap_values.pickle', 'rb'))
+# explainer = pickle.load(open('explainer.pickle', 'rb'))
+# shap_values = pickle.load(open('shap_values.pickle', 'rb'))
 df_M_character_scale = scale_and_standardize(df_M_character)
 author_idx_lookup = dict([(name, idx) for idx, name in enumerate(df_M_character.index)])
+ppl_labels = joblib.load('ppl_labels.joblib') 
+# train XGBoost model
+X, y = pd.DataFrame(
+    df_M_character_scale, 
+    columns=df_M_character.columns
+), ppl_labels
+
+bst = xgboost.train({"learning_rate": 0.01}, xgboost.DMatrix(X, label=y), 100)
+
+# explain the model's predictions using SHAP values
+explainer = shap.TreeExplainer(bst)
+shap_values = explainer.shap_values(X)
+# shap.summary_plot(shap_values, X)
+
 
 X = pd.DataFrame(
     df_M_character_scale, 
@@ -68,8 +84,6 @@ X = pd.DataFrame(
 df_leaderboard = pd.read_csv("leaderboard.csv")
 df_leaderboard.rename(columns = {'Unnamed: 0':'Rank', 'author':'member'}, inplace=True)
 selection = aggrid_interactive_table(df=df_leaderboard)
-
-
 
 
 if selection:
